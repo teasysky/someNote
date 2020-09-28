@@ -1,10 +1,11 @@
 ## 前言
 
 目前iOS CoreBlueTooth相关的第三库已经有非常多，其中不乏非常优秀的封装库，如 [
-BabyBluetooth](https://github.com/coolnameismy/BabyBluetooth) 和 [BluetoothKit](https://github.com/rhummelmose/BluetoothKit), 是 Objective-c 和 Swift 语言下最高Star的蓝牙封装框架。这两个库的共同优点是提供了非常简洁易用的API，高度抽象化蓝牙功能模块，框架中代码简洁、优雅。虽然有诸多优秀之处，但确不便于直接拿来主义，原因如下
+BabyBluetooth](https://github.com/coolnameismy/BabyBluetooth) 和 [BluetoothKit](https://github.com/rhummelmose/BluetoothKit), 是 Objective-c 和 Swift 语言下最高Star的蓝牙封装框架。这两个库的共同优点是提供了非常简洁易用的API，高度抽象化蓝牙功能模块，框架中代码简洁、优雅。虽然有诸多优秀之处，但不便于我们直接拿来使用，原因如下：
 
-- 冗余功能过多，包含蓝牙外围设备模块，融入于整个层次化抽象内，而我们只需要中心设备。
-- 扩展性和业务调用方代码量的平衡问题，由于高扩展性，必然会带来业务代码量增加，这里需与业务复杂度达到一个平衡。
+- 冗余功能过多，我们只需要中心设备（蓝牙客户端），但是框架包含外围设备（服务端）。原架构设计兼顾了中心设备和外围设备，融入于整个层次化抽象内，导致了不适用于我们现有业务的冗余。
+
+- 扩展性和业务调用方代码量的平衡问题，由于高扩展性，必然会带来业务代码量增加。如BabyBluetooth侧重于将CoreBluetooth离散的代理结构重构为功能和顺序更清晰的Block方式，API结构更清晰,也具备全量扩展能力,但是对于业务调用方仍需要实现所有的Block业务。这里需与业务复杂度达到一个平衡。
 - 不便于扩展蓝牙协议通信，BLE通信的输入包括外设、服务、特征以及数据，除此之外还需要注意BLE连接状态，蓝牙权限等。而目前的框架侧重点在扫描，连接，发现服务和特征上，对于协议通信支持很弱或者没有支持。
 
 针对于以上原因，我们需要一个功能复杂度适中、抽象层次恰当、通信协议扩展简洁的框架，这是设计TBluetooth的目的。
@@ -16,9 +17,54 @@ BabyBluetooth](https://github.com/coolnameismy/BabyBluetooth) 和 [BluetoothKit]
 ## 总体设计
 
 TBluetooth 按照数据流方向分为三层，自顶而下为接口层、协议层和核心层，架构图如下：
+ 
+<center><img src="./images/TBluetooth_1.png" width="450"></center>
 
-<img src="./images/TBluetooth_1.png" width="500">
+整体结构图可以采用以下向导图表示：
+ 
+<center><img src="./images/TBluetooth_3.png" width="900"></center>
 
+架构说明：
 
+- 接口层： 这层是针对于BLE业务协议抽象出来的，针对于不同的产品形态，可能定义了不同的BLE通信报文结构。这层定义了报文数据结构，组织方式，以及报文收发API。不同的业务方，可扩展不同是数据结构以及遵循协议接口约定的报文组织方式。
 
+- 协议层： 这层主要包含两个部分，会话数据收发枢纽SessionManager和协议代理抽象类 StackProtocol。所有BLE报文都需要按照StackProtocol协议要求通过SessionManager进行收发。
+
+- 核心层： BLE模块操作层，提供的外部API包括BLE扫描、发现服务、连接断开外设、BLE模块权限事件、服务特征配置器以及BLE中心设备状态机。
+
+## 使用方法
+
+##### BLE扫描
+```
+var central: TCBCentral {
+    return TCBCentral.share
+}
+central.scanWithDuration(0, filter: { (advertisementData, _) -> Bool in
+    if let data = advertisementData["kCBAdvDataManufacturerData"] as? Data, data.count >= 6, data.imeiString() == self.imei {
+            return true
+    }
+    return false
+}, progressHandler: { [weak self] (discoveries) in
+    _ = discoveries.map({ $0.remotePeripheral.uuid = ($0.advertisementData["kCBAdvDataManufacturerData"] as? Data)?.imeiString() })
+    if discoveries.count > 0, discoveries[0].remotePeripheral.uuid == self?.imei {
+        self?.central.stopScan()
+    }
+}) { [weak self] (discoveries, error) in
+    guard error == nil, let discoveries = discoveries, discoveries.count > 0 else { return }
+    self?.connectPeripheral(discoveries[0].remotePeripheral)
+}
+```
+> Tips: 0表示扫描时长，filter表示扫描过滤器，progressHandler当发现新外设设该回调会执行，completeHandler当扫描结束后会执行。 
+
+##### Peripheral 连接
+```
+///  Connect to a remote peripheral.
+/// - Parameters:
+///   - timeout: The number of seconds the connection attempt should continue  for before failing.
+///   - remotePeripheral: The remote peripheral to connect to.
+///   - completionHandler: A completion handler allowing you to react when the connection attempt succeeded or failed.
+
+public func connect(_ timeout: TimeInterval = 3, remotePeripheral: TCBPeripheral, completionHandler: @escaping ConnectCompletionHandler)
+```
+>>>>>>> 增加BLE模块架构设计文档
 
