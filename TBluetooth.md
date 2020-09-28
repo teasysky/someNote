@@ -17,12 +17,16 @@ BabyBluetooth](https://github.com/coolnameismy/BabyBluetooth) 和 [BluetoothKit]
 ## 总体设计
 
 TBluetooth 按照数据流方向分为三层，自顶而下为接口层、协议层和核心层，架构图如下：
- 
+
 <center><img src="./images/TBluetooth_1.png" width="450"></center>
 
 整体结构图可以采用以下向导图表示：
  
 <center><img src="./images/TBluetooth_3.png" width="900"></center>
+
+业务模块API调用，模块内部工作流可以如下图所示：
+
+<center><img src="./images/TBluetooth_2.png" width="600"></center>
 
 架构说明：
 
@@ -56,6 +60,17 @@ central.scanWithDuration(0, filter: { (advertisementData, _) -> Bool in
 ```
 > Tips: 0表示扫描时长，filter表示扫描过滤器，progressHandler当发现新外设设该回调会执行，completeHandler当扫描结束后会执行。 
 
+##### Central 权限监听 和 配置
+```
+/// BLE 权限监听
+ central.addAvailabilityObserver(self)
+
+ /// 通过该接口配置订阅服务
+central.configure { (configure) in
+    configure.serviceUUIDs = "xxxxx-xxxxx-xxxx-xxx"
+}
+```
+
 ##### Peripheral 连接
 ```
 ///  Connect to a remote peripheral.
@@ -66,5 +81,68 @@ central.scanWithDuration(0, filter: { (advertisementData, _) -> Bool in
 
 public func connect(_ timeout: TimeInterval = 3, remotePeripheral: TCBPeripheral, completionHandler: @escaping ConnectCompletionHandler)
 ```
->>>>>>> 增加BLE模块架构设计文档
+
+
+##### Peripheral 服务特征配置
+```
+peripheral?.configure({ (configure) in
+    configure.customCharacteristicUUID = "00005501-D102-11E1-9B23-00025B00A5A5"
+})
+```
+> Tips: 当需要BLE数据通信时，Perpheral连接成功之后可以配置该特征UUID，后续数据收发仅关注数据本身
+
+##### BLE报文结构示例
+```
+ /*
+     * MKN0 BLE 通讯协议数据结构
+     * | Header | DataLength | TotalFrame | CurFrame | ModuleID | EventID |  Data  |
+     *   1 Bytes    2 Bytes     1 Byte       1 Byte     1 Byte     1 Byte   0 ~ 13
+     *
+     */
+public struct TrackerProtocol {
+    
+    /// 协议头
+    public var header: UInt8 = TCBTrackerProtocol.magic
+    
+    /// 数据字段Data的长度
+    public var dataLength: UInt16 = 0x00
+    
+    /// 总帧数，每帧最大4k Data,超过需要分帧传输(FW处理能力)
+    public var totalFrame: UInt8 = 0x00
+    
+    /// 当前帧序号
+    public var curFrame: UInt8 = 0x00
+    
+    /// 业务模块ID
+    public var moduleID: UInt8 = 0x00
+    
+    /// 业务事件ID
+    public var eventID: UInt8 = 0x00
+    
+    /// 数据位(data)CRC-8
+    public var crc8: UInt8 = 0x00
+    
+    /// 数据内容
+    public var data: Data = Data()
+}
+```
+
+##### BLE报文发送API
+```
+func getBindCode(completionHandler: @escaping CompletionHandler) {
+    let package = TCBTrackerProtocol(command: .basic(.bindCode))
+    _ = TSessionManager.shared.request(with: self, param: package) { (result, error) in
+        if error != .none {
+            completionHandler(nil, error)
+            return
+        }
+        guard let result = result as? TCBTrackerProtocol else {
+            completionHandler(nil, .protocolInvalid)
+            return
+        }
+        let response = TCBTrackerProtocol.BindCodeResponse(with: result.response.data)
+        completionHandler(response as AnyObject, .none)
+    }
+}
+```
 
