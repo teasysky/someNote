@@ -75,6 +75,26 @@ if peripheral?.isConnected {
     }
 }
 
+/// 调用数据发送API，对于大数据发送，需要分包发送，API支持发送进度回调
+if peripheral?.isConnected {
+    peripheral?.sendData(processHandler: { (sent, total) in
+        let percent = sent / total
+        print("\(percent) of the data has been sent")                
+    }) { (result, error) in
+        
+    }
+}
+
+/// 调用数据发送API, API支持中断数据发送
+if peripheral?.isConnected {
+    let task = peripheral?.setData { (response, error) in
+        if error == .none {
+            print("Data has been sent and response has been called back")
+        }
+    }
+    task.interrupt()
+}
+
 ///  BLE 权限事件监听
 extension DiscoverViewController: TCBAvailabilityObserver {
     
