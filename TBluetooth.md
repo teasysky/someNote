@@ -38,111 +38,55 @@ TBluetooth 按照数据流方向分为三层，自顶而下为接口层、协议
 
 ## 使用方法
 
-##### BLE扫描
 ```
+/// 中心设备为单例
 var central: TCBCentral {
     return TCBCentral.share
 }
-central.scanWithDuration(0, filter: { (advertisementData, _) -> Bool in
-    if let data = advertisementData["kCBAdvDataManufacturerData"] as? Data, data.count >= 6, data.imeiString() == self.imei {
-            return true
-    }
-    return false
-}, progressHandler: { [weak self] (discoveries) in
-    _ = discoveries.map({ $0.remotePeripheral.uuid = ($0.advertisementData["kCBAdvDataManufacturerData"] as? Data)?.imeiString() })
-    if discoveries.count > 0, discoveries[0].remotePeripheral.uuid == self?.imei {
-        self?.central.stopScan()
-    }
-}) { [weak self] (discoveries, error) in
-    guard error == nil, let discoveries = discoveries, discoveries.count > 0 else { return }
-    self?.connectPeripheral(discoveries[0].remotePeripheral)
-}
-```
-> Tips: 0表示扫描时长，filter表示扫描过滤器，progressHandler当发现新外设设该回调会执行，completeHandler当扫描结束后会执行。 
 
-##### Central 权限监听 和 配置
-```
 /// BLE 权限监听
- central.addAvailabilityObserver(self)
+central.addAvailabilityObserver(self)
 
- /// 通过该接口配置订阅服务
-central.configure { (configure) in
-    configure.serviceUUIDs = "xxxxx-xxxxx-xxxx-xxx"
+/// 开始扫描外设 
+central.scanWithDuration(0, filter: { (advertisementData, _) -> Bool in
+    // filter表示扫描过滤器, true: 表示过滤  false: 表示不过滤
+}, progressHandler: { [weak self] (discoveries) in
+    // 当发现新外设时该回调会执行
+}) { [weak self] (discoveries, error) in
+    // 扫描结束时该回调执行
 }
-```
 
-##### Peripheral 连接
-```
-///  Connect to a remote peripheral.
-/// - Parameters:
-///   - timeout: The number of seconds the connection attempt should continue  for before failing.
-///   - remotePeripheral: The remote peripheral to connect to.
-///   - completionHandler: A completion handler allowing you to react when the connection attempt succeeded or failed.
+/// 开始连接外设
+central.connect(remotePeripheral: peripheral) { remotePeripheral, error in
 
-public func connect(_ timeout: TimeInterval = 3, remotePeripheral: TCBPeripheral, completionHandler: @escaping ConnectCompletionHandler)
-```
+}
 
-
-##### Peripheral 服务特征配置
-```
+/// 外设连接成功之后，需要配置特征UUID，用于指定数据收发所用的特征值。
 peripheral?.configure({ (configure) in
     configure.customCharacteristicUUID = "00005501-D102-11E1-9B23-00025B00A5A5"
 })
-```
-> Tips: 当需要BLE数据通信时，Perpheral连接成功之后可以配置该特征UUID，后续数据收发仅关注数据本身
 
-##### BLE报文结构示例
-```
- /*
-     * MKN0 BLE 通讯协议数据结构
-     * | Header | DataLength | TotalFrame | CurFrame | ModuleID | EventID |  Data  |
-     *   1 Bytes    2 Bytes     1 Byte       1 Byte     1 Byte     1 Byte   0 ~ 13
-     *
-     */
-public struct TrackerProtocol {
-    
-    /// 协议头
-    public var header: UInt8 = TCBTrackerProtocol.magic
-    
-    /// 数据字段Data的长度
-    public var dataLength: UInt16 = 0x00
-    
-    /// 总帧数，每帧最大4k Data,超过需要分帧传输(FW处理能力)
-    public var totalFrame: UInt8 = 0x00
-    
-    /// 当前帧序号
-    public var curFrame: UInt8 = 0x00
-    
-    /// 业务模块ID
-    public var moduleID: UInt8 = 0x00
-    
-    /// 业务事件ID
-    public var eventID: UInt8 = 0x00
-    
-    /// 数据位(data)CRC-8
-    public var crc8: UInt8 = 0x00
-    
-    /// 数据内容
-    public var data: Data = Data()
+/// 调用数据发送API
+if peripheral?.isConnected {
+    peripheral?.setData { (response, error) in
+        if error == .none {
+            print("Data has been sent and response has been called back")
+        }
+    }
 }
-```
 
-##### BLE报文发送API
-```
-func getBindCode(completionHandler: @escaping CompletionHandler) {
-    let package = TCBTrackerProtocol(command: .basic(.bindCode))
-    _ = TSessionManager.shared.request(with: self, param: package) { (result, error) in
-        if error != .none {
-            completionHandler(nil, error)
-            return
+///  BLE 权限事件监听
+extension DiscoverViewController: TCBAvailabilityObserver {
+    
+    func availabilityObserver(_ availabilityObservable: TCBAvailabilityObservable, availabilityDidChange availability: TCBAvailability) {
+        print("availabilityDidChange \(availability)")
+        if availability == .available {
+          scan()
+        } else {
+            central.interruptScan()
         }
-        guard let result = result as? TCBTrackerProtocol else {
-            completionHandler(nil, .protocolInvalid)
-            return
-        }
-        let response = TCBTrackerProtocol.BindCodeResponse(with: result.response.data)
-        completionHandler(response as AnyObject, .none)
     }
 }
 ```
+
 
