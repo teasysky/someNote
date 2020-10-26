@@ -46,20 +46,15 @@ chore:    不修改src或者test的其余修改，例如构建过程或辅助工
 
 scope也为选填项，建议填写。用于描述改动的范围，格式为项目名/模块名，例如：mt40/common mkn0/social，而sdk不需指定模块名。如果一次commit修改多个模块，可以采用分号隔开，不过建议拆分成多次commit，以便更好追踪和维护。
 
-#### 2.3 subject
-
-subject为必填项，用于概括描述该Commit的修改点。非常重要，必须简明扼要填写。
-
-#### 2.4 body
+#### 2.3 body
 
 body填写详细描述，主要描述改动之前的情况及修改动机，对于小的修改不作要求，但是重大需求、更新等必须添加body来作说明。
 
-#### 2.5 break changes
+#### 2.4 break changes
 
 break changes指明是否产生了破坏性修改，涉及break changes的改动必须指明该项，类似版本升级、接口参数减少、接口删除、迁移等。
 
-#### 2.6 close issue
-
+#### 2.5 close issue
 如果当前 commit 针对某个issue，那么可以在 Footer 部分关闭这个 issue 。
 ```
 Closes #234
