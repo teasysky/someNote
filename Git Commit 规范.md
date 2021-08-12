@@ -100,38 +100,3 @@ cz commit   #执行代码提交命令，替代git commit
 ```
 
 具体请参考第3节 示例。
-
-#### 4.4 Help
-
-```
-$ cz --help
-usage: cz [-h] [--debug] [-n NAME] [--version]
-          {init,commit,c,ls,example,info,schema,bump,changelog,ch,check,version}
-          ...
-
-Commitizen is a cli tool to generate conventional commits.
-For more information about the topic go to https://conventionalcommits.org/
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --debug               use debug mode
-  -n NAME, --name NAME  use the given commitizen (default:
-                        cz_conventional_commits)
-  --version             get the version of the installed commitizen
-
-commands:
-  {init,commit,c,ls,example,info,schema,bump,changelog,ch,check,version}
-    init                init commitizen configuration
-    commit (c)          create new commit
-    ls                  show available commitizens
-    example             show commit example
-    info                show information about the cz
-    schema              show commit schema
-    bump                bump semantic version based on the git log
-    changelog (ch)      generate changelog (note that it will overwrite
-                        existing file)
-    check               validates that a commit message matches the commitizen
-                        schema
-    version             get the version of the installed commitizen or the
-                        current project (default: installed commitizen)
-```
