@@ -20,7 +20,7 @@
 
 - [HTML/CSS 序列教程 - W3school](https://www.w3school.com.cn/h.asp)
 
-**注意**: 这部分大致花一两天时间快速通览，这个阶段达到能看懂React Native语法即可。
+**注意:** 这部分大致花一两天时间快速通览，这个阶段达到能看懂React Native语法即可。
 
 ##### 2.1.2 React Native基础
 需要熟悉React语言和React Native基础，以下是推荐学习资源：
@@ -29,7 +29,7 @@
 
 - [React 核心概念 - React 中文网](https://zh-hans.reactjs.org/docs/hello-world.html)
 
-**注意：**着重学习React Native的核心组件与原生组件，这是桥接Native和React知识非常好的桥梁，从中能发现React Native和原生的很多共性，便于平滑切入React Native知识。
+**注意：** 着重学习React Native的核心组件与原生组件，这是桥接Native和React知识非常好的桥梁，从中能发现React Native和原生的很多共性，便于平滑切入React Native知识。
 着重学习React基础，特别是核心概念：components组件, JSX, props, state。其中props,state与原生开发的知识点有较大差异，需深入理解。
 
 这个阶段需把握好知识面和速度，切记学习的内容在推荐的范围内，不要孤军深入，不然掉进前端的知识海洋里爬不起来。速度要较快完成，否则纯知识学习，没有结合实践，效率非常低下。
@@ -83,7 +83,7 @@ React Native如何集成到原生项目，官方有详细的[指导教程](https
 
 目录结构一定程度上反应了业务层次和架构层次，更便于理解，开发和维护。
 
-注意：调整目录结构时，文件夹名称不要有中文，空格等特殊字符，否则会产生一些[异常错误](https://github.com/facebook/react-native/issues/31259)
+**注意：** 调整目录结构时，文件夹名称不要有中文，空格等特殊字符，否则会产生一些[异常错误](https://github.com/facebook/react-native/issues/31259)
 
 react-native目录下的ios,android目录，不仅是原生到React Native的入口，还是原生框架的组件入口。
 
