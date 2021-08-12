@@ -1,17 +1,17 @@
 <h1 align="center">XXX Connect APP集成React Native实践</h1>
 
-##1. 为什么要集成React Native
+### 1. 为什么要集成React Native
 &emsp;&emsp;虽然XXX Connect APP采用组件化技术后，可以支持全品类智能硬件接入, 但还是存在几个较为明显的缺陷。**主要表现在不具备动态支持新品类智能硬件接入，不具备跨平台协同共享模块能力**。这两个问题放在当下并不难解决，因为跨平台和热更新技术非常成熟，智能硬件类厂商采用这些技术也有非常优秀的商用产品，如米家APP，Hi-Link等。现在的关键问题点不是能不能解决这些缺陷，而是如何更好更优雅的解决。
 
 &emsp;&emsp;目前主流的Hybrid技术有web, react native, weex, flutter。其中Web已在XXX Connect中采用，不做讨论。另外三个技术综合对比，也有较多优秀文章做了非常详细的对比，不展开讨论，本文侧重讨论技术与业务契合度。作为支持全品类的智能硬件管理类APP，需要支持几十上百款智能硬件，显然这些需求是迭代上升的，所以具备动态热更新能力是非常有必要，且几乎是不可或缺的能力。另外这类APP要与智能硬件以及服务端交互，Android & iOS端通信基础库和UI高度同质，所以具备协同共享模块能力也同样非常有必要。
 
 &emsp;&emsp;综上，React Native似乎是最好的选择。React Native是非常优秀的跨平台，热更新框架, 应该是目前市面上Hybrid APP使用最广的技术。虽然React Native也存在很多缺陷，以至于大厂也有弃坑的，如Airbnb。但还是从业务角度出发，智能硬件类APP不涉及很复杂的UI绘制，不涉及很多系统层SDK能力支撑，所以综合考量，React Native仍然是最优解。
 
-###2. 认识React Native
+### 2. 认识React Native
 从原生开发转战React Native，技术跨度较大，学习成本较高，所以清晰的学习路线尤为重要。我认为学习路线可以分为三个大的维度，基础 --> 实践 --> 模式。这三个维度是循循渐进的，一定要按照顺序学习，不然容易走弯路，掉入循环往复，学无止境的坑。下面展开来讨论：
 
-####2.1 基础
-#####2.1.1 语言基础
+#### 2.1 基础
+##### 2.1.1 语言基础
 开发语言涉及Javascript, ES6, HTML/CSS，重点学习JS和ES。至于HTML/CSS大概过一遍，实战时再查阅，以下是推荐资源：
 
 - [Javascript 高级教程 - W3school](https://www.w3school.com.cn/js/pro_js_syntax.asp)
@@ -22,7 +22,7 @@
 
 **注意**: 这部分大致花一两天时间快速通览，这个阶段达到能看懂React Native语法即可。
 
-#####2.1.2 React Native基础
+##### 2.1.2 React Native基础
 需要熟悉React语言和React Native基础，以下是推荐学习资源：
 
 - [React native 入门基础 - React native中文网](https://www.react-native.cn/docs/getting-started)
@@ -34,7 +34,7 @@
 
 这个阶段需把握好知识面和速度，切记学习的内容在推荐的范围内，不要孤军深入，不然掉进前端的知识海洋里爬不起来。速度要较快完成，否则纯知识学习，没有结合实践，效率非常低下。
 
-####2.2 实践
+#### 2.2 实践
 ##### 2.2.1 环境搭建
 开发环境的搭建，参考[官方教程](https://www.react-native.cn/docs/environment-setup)即可。 关于开发工具，磨刀不误砍柴工，开发工具的选择至关重要。推荐使用VS Code，这是非常受JS开发者欢迎的IDE工具。VS Code兼容性和扩展性非常棒，有强大且丰富的插件资源，对于项目开发和debug效率提升有非常显著的效果。[VS Code React Native开发插件推荐](https://blog.csdn.net/qq_26585943/article/details/78987844)
 
@@ -48,7 +48,7 @@
 
 **注意：** 关于状态管理架构 Redux，Hooks, 先别急于深入学习，大致了解，能读懂代码即可。后续讨论 
 
-####2.3 模式
+#### 2.3 模式
 &emsp;&emsp;经过前面理论和实践的结合学习，应该具备了大部分项目的阅读能力，以及在特定设计模式下构建业务模块的能力。但是如何设计一个完整的项目架构，依然还有一个重点知识需要学习，那就是架构设计模式。关于React Native的设计模式，我认为这是原生开发工程师学习React Native知识的关键难点。以Redux为例，当原生开发工程师学习Redux时，难免会将其映射到MVC上。但是Redux与MVC在某种维度下是没有可比性的，MVC侧重架构模式上，而Redux侧重状态数据管理上。然后在另一种维度上，又存在一定的可比性。所以会形成一种似是而非的感觉。如果想进一步了解MVC与Redux的区别，可以参考[MVC,Flux和Redux的真正区别](https://blog.csdn.net/wangtao2536/article/details/117806530?spm=1001.2014.3001.5501)。
 
 &emsp;&emsp;虽然Redux严格意义上不算是架构模式，但是作为状态管理模式基本贯穿整个软件业务实现。从数据维度看，前端软件无非就是数据管理、数据加工、数据展示，React Native中的状态管理模式基本涉及了这三个维度。所以构建项目架构，理解React Native的状态管理是非常有必要的。第三方状态管理库众多，主要有Redux、Mobx、Context、Recoil等，一些推荐学习资源如下：
@@ -63,10 +63,10 @@
 针对现状问题，React官方在16.8新增了Hook特性，作为状态管理库，Hook相较于其他状态管理库更轻量，更易接入，对于入门开发者更友好。[React Hooks 官方文档](https://zh-hans.reactjs.org/docs/hooks-custom.html)
 由于Hook是官方推出的库，对于原生开发者接受度更高。为什么呢？以iOS为例，MVC是Cocoa应用程序设计的核心，基础工程是基于MVC展开的，同理Android应用开发也是如此。在不基于第三方库的前提下，原生开发依然可以方便的构建软件框架，但是React Native比较难，必须得依赖第三状态管理库，否则难以构建软件架构。Hook的出现，打破了这个局面。
 
-###3. 如何集成React Native
+### 3. 如何集成React Native
 XXX Connect APP如何集成React Native，可分为两大块，第一是React Native集成到原生应用，第二是React Native工程搭建。
 
-####3.1 React Native集成到原生应用：
+#### 3.1 React Native集成到原生应用：
 React Native如何集成到原生项目，官方有详细的[指导教程](https://www.react-native.cn/docs/integration-with-existing-apps)：
 
 **几点思考**
@@ -92,15 +92,15 @@ react-native目录下的ios,android目录，不仅是原生到React Native的入
 android,ios,react-native三个目录对应三个git仓库。 采用git submodule统一管理，其中ios和android分别将React Native模块通过git submodule的方式依赖至源码中。这样设计的优势是，保持android,iOS原独立仓库不变，同时共享React Native仓库，保持一份React Native源码。
 
 
-###3.2 React Native工程搭建：
-####3.2.1 技术选型
+### 3.2 React Native工程搭建：
+#### 3.2.1 技术选型
 1. 开发语言选择Typescript, 相对于Javascript, TS更好的阅读性，静态类型检查，以及类型推导。更多TS与JS的区别，可以参考[Typesript vs Javascipt: The Key Differences You Should Know In 2021](https://flatlogic.com/blog/typescript-vs-javascript-the-key-differences-you-should-know-in-2020/#two)
 
 2. 状态管理库选择Hook，不采用Redux，更不采用Redux+Hook的方式。 具体原因在2.3节有阐述。
 
 3. 尽可能少的依赖第三方库，引入的价值也许不如麻烦多。
 
-####3.2.2 工程目录结构
+#### 3.2.2 工程目录结构
 <img src="./images/rn_integrated_3.png">
 
 **/src/index.ts:**
