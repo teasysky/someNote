@@ -1,9 +1,9 @@
-<h1 align="center">XXX Connect APP集成React Native思考</h1>
+<h1 align="center">TCL Connect APP集成React Native思考</h1>
 
 ## 1. 为什么要集成React Native
-&emsp;&emsp;虽然XXX Connect APP采用组件化技术后，可以支持全品类智能硬件接入, 但还是存在几个较为明显的缺陷。**主要表现在不具备动态支持新品类智能硬件接入，不具备跨平台协同共享模块能力**。这两个问题放在当下并不难解决，因为跨平台和热更新技术非常成熟，智能硬件类厂商采用这些技术也有非常优秀的商用产品，如米家APP，Hi-Link等。现在的关键问题点不是能不能解决这些缺陷，而是如何更好更优雅的解决。
+&emsp;&emsp;虽然TCL Connect APP采用组件化技术后，可以支持全品类智能硬件接入, 但还是存在几个较为明显的缺陷。**主要表现在不具备动态支持新品类智能硬件接入，不具备跨平台协同共享模块能力**。这两个问题放在当下并不难解决，因为跨平台和热更新技术非常成熟，智能硬件类厂商采用这些技术也有非常优秀的商用产品，如米家APP，Hi-Link等。现在的关键问题点不是能不能解决这些缺陷，而是如何更好更优雅的解决。
 
-&emsp;&emsp;目前主流的Hybrid技术有web, react native, weex, flutter。其中Web已在XXX Connect中采用，不做讨论。另外三个技术综合对比，也有较多优秀文章做了非常详细的对比，不展开讨论，本文侧重讨论技术与业务契合度。作为支持全品类的智能硬件管理类APP，需要支持几十上百款智能硬件，显然这些需求是迭代上升的，所以具备动态热更新能力是非常有必要，且几乎是不可或缺的能力。另外这类APP要与智能硬件以及服务端交互，Android & iOS端通信基础库和UI高度同质，所以具备协同共享模块能力也同样非常有必要。
+&emsp;&emsp;目前主流的Hybrid技术有web, react native, weex, flutter。其中Web已在TCL Connect中采用，不做讨论。另外三个技术综合对比，也有较多优秀文章做了非常详细的对比，不展开讨论，本文侧重讨论技术与业务契合度。作为支持全品类的智能硬件管理类APP，需要支持几十上百款智能硬件，显然这些需求是迭代上升的，所以具备动态热更新能力是非常有必要，且几乎是不可或缺的能力。另外这类APP要与智能硬件以及服务端交互，Android & iOS端通信基础库和UI高度同质，所以具备协同共享模块能力也同样非常有必要。
 
 &emsp;&emsp;综上，React Native似乎是最好的选择。React Native是非常优秀的跨平台，热更新框架, 应该是目前市面上Hybrid APP使用最广的技术。虽然React Native也存在很多缺陷，以至于大厂也有弃坑的，如Airbnb。但还是从业务角度出发，智能硬件类APP不涉及很复杂的UI绘制，不涉及很多系统层SDK能力支撑，所以综合考量，React Native仍然是最优解。
 
@@ -70,7 +70,7 @@
 由于Hook是官方推出的库，对于原生开发者接受度更高。为什么呢？以iOS为例，MVC是Cocoa应用程序设计的核心，基础工程是基于MVC展开的，同理Android应用开发也是如此。在不基于第三方库的前提下，原生开发依然可以方便的构建软件框架，但是React Native比较难，必须得依赖第三状态管理库，否则难以构建软件架构。Hook的出现，打破了这个局面。
 
 ## 3. 如何集成React Native
->XXX Connect APP如何集成React Native，可分为两大块，第一是React Native集成到原生应用，第二是React Native工程搭建。
+>TCL Connect APP如何集成React Native，可分为两大块，第一是React Native集成到原生应用，第二是React Native工程搭建。
 
 ### 3.1 React Native集成到原生应用：
 React Native如何集成到原生项目，官方有详细的[指导教程](https://www.react-native.cn/docs/integration-with-existing-apps)：
